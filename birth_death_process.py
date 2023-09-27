@@ -36,7 +36,7 @@ random.seed(seed)
 
 # Define output folder
 run_date = "09272023"
-output_dir = os.path.join(os.getcwd(), "results", "birth_death_process", "coin_flip", run_date)
+output_dir = os.path.join(os.getcwd(), "results", "birth_death_process", "coin_flip", run_date, "10000n0")
 os.makedirs(output_dir, exist_ok=True)
 
 #-------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ def birth_death_simulation(clone, tstop, birth_rate, death_rate):
 # Define parameters and run simulation
 
 # Define starting parameters
-n0 = 1000
+n0 = 10000
 t0 = 0
 tstop = 100
 birth_rate = 0.05 # right now just arbitrary, must be equal to death rate
@@ -118,7 +118,14 @@ expanded_clones = run_simulation(n0, t0, tstop, birth_rate, death_rate)
 # Produce cumulative proportion over scaled clone size step plot
 
 # Define function to generate cumulative frequency vs rescaled average
-def cumulative_frequency_plot(expanded_clones, tag):
+def cumulative_frequency_plot(expanded_clones, tag, active_only = False):
+    # Retain only clones with at least one stem cells (if active only)
+    if active_only == True:
+        expanded_clones = [clone for clone in expanded_clones if clone.num_stem > 0]
+        active_tag = "_onlyActiveClones"
+    else:
+        active_tag = ""
+
     # Grab num_stem, num_diff, and total cell number from all clones
     num_stem_list = [clone.num_stem for clone in expanded_clones]
     num_diff_list = [clone.num_diff for clone in expanded_clones]
@@ -150,20 +157,21 @@ def cumulative_frequency_plot(expanded_clones, tag):
     fontsize = 16
     plt.xlabel("Rescaled average, n/<n>", fontsize = fontsize)
     plt.ylabel("Cumulative frequency (%)", fontsize = fontsize)
-    plt.title("birth-death model: " + tag, fontsize = fontsize)
+    plt.title("birth-death model: " + tag + active_tag, fontsize = fontsize)
     plt.legend(loc="upper right", fontsize = fontsize)
     plt.xticks(fontsize = fontsize)
     plt.yticks(fontsize = fontsize)
     plt.margins(x = 0.01, y = 0.01)
 
     # Save plot
-    plt.savefig(output_dir + "/birth_death_process_cumulative_frequency_" + tag + ".png", bbox_inches='tight', dpi=300)
+    plt.savefig(output_dir + "/birth_death_process_cumulative_frequency_" + tag + active_tag + ".png", bbox_inches='tight', dpi=300)
     plt.close()
 
     return None
 
 # Generate cumulative frequency plot
 cumulative_frequency_plot(expanded_clones, "allcells")
+cumulative_frequency_plot(expanded_clones, "allcells", active_only=True)
 
 #-------------------------------------------------------------------------------
 # Produce frequency over clone size histogram
