@@ -24,17 +24,19 @@
 # Read in packages
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import random
 import os
 from statistics import mean
-import matplotlib.pyplot as plt
+from operator import add
 
 # Set random seed
 seed = 123
 random.seed(seed)
 
 # Define output folder
-output_dir = os.path.join(os.getcwd(), "results", "birth_death_process", "seed" + str(seed))
+run_date = "09272023"
+output_dir = os.path.join(os.getcwd(), "results", "birth_death_process", "coin_flip", run_date)
 os.makedirs(output_dir, exist_ok=True)
 
 #-------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ class Clone:
     def self_renew(self):
         self.num_stem += 1
 
-    # Add differnentation method
+    # Add differentation method
     def differentiate(self):
         self.num_stem -= 1
         self.num_diff += 1
@@ -62,15 +64,12 @@ def birth_death_simulation(clone, tstop, birth_rate, death_rate):
     # Calculate birth probability
     birth_prob = birth_rate / (birth_rate + death_rate)
 
-    # Define mean event rate
-    mean_event_rate = clone.num_stem*birth_rate*death_rate
-
     # Add a time step
-    time_step = np.random.exponential(scale=mean_event_rate, size=None)
+    time_step = np.random.exponential(scale=1/(clone.num_stem*(birth_rate+death_rate)), size=None)
     clone.time = clone.time + time_step
 
     # Draw a time step
-    while clone.time < tstop and clone.num_stem > 0:
+    while clone.time < tstop:
         # Draw random number from 0 to 1
         random_draw = random.random()
 
@@ -80,8 +79,11 @@ def birth_death_simulation(clone, tstop, birth_rate, death_rate):
         else:
             clone.differentiate()
 
+        if clone.num_stem == 0:
+            return clone
+
         # Add another time step
-        time_step = np.random.exponential(scale=mean_event_rate, size=None)
+        time_step = np.random.exponential(scale=1/(clone.num_stem*(birth_rate+death_rate)), size=None)
         clone.time = clone.time + time_step
 
     # Return the resulting clone
@@ -91,11 +93,11 @@ def birth_death_simulation(clone, tstop, birth_rate, death_rate):
 # Define parameters and run simulation
 
 # Define starting parameters
-n0 = 2000
+n0 = 1000
 t0 = 0
 tstop = 100
-birth_rate = 1 # right now just arbitrary, must be equal to death rate
-death_rate = 1
+birth_rate = 0.05 # right now just arbitrary, must be equal to death rate
+death_rate = 0.05
 
 # Define simulation runner
 def run_simulation(n0, t0, tstop, birth_rate, death_rate):
@@ -113,32 +115,91 @@ def run_simulation(n0, t0, tstop, birth_rate, death_rate):
 expanded_clones = run_simulation(n0, t0, tstop, birth_rate, death_rate)
 
 #-------------------------------------------------------------------------------
-# Produce cumulative proportion over scaled clone size plot
+# Produce cumulative proportion over scaled clone size step plot
 
-# Grab num_stem, num_diff, and total cell number from all clones
-num_stem_list = [clone.num_stem for clone in expanded_clones]
-num_diff_list = [clone.num_diff for clone in expanded_clones]
-num_cells_list = num_stem_list + num_diff_list
+# Define function to generate cumulative frequency vs rescaled average
+def cumulative_frequency_plot(expanded_clones, tag):
+    # Grab num_stem, num_diff, and total cell number from all clones
+    num_stem_list = [clone.num_stem for clone in expanded_clones]
+    num_diff_list = [clone.num_diff for clone in expanded_clones]
+    num_cells_list = list(map(add, num_stem_list, num_diff_list))
 
-# Mean-scale number of cells
-mean_scaled_num_cells = [num_cells / mean(num_cells_list) for num_cells in num_cells_list]
+    # Grab either all cells or only stem cells
+    if tag == "allcells":
+        cells_list = num_cells_list
+    elif tag == "stemcells":
+        cells_list = num_stem_list
 
-# Sort values
-mean_scaled_num_cells.sort()
+    # Mean-scale number of cells
+    mean_scaled_num_cells = [num_cells / mean(cells_list) for num_cells in cells_list]
 
-# Define steps
-steps = np.arange(len(mean_scaled_num_cells))[::-1] / len(mean_scaled_num_cells)
+    # Sort values
+    mean_scaled_num_cells.sort()
 
-# Plot cumulative frequency
-plt.step(mean_scaled_num_cells, steps)
-plt.xlabel("Rescaled average, n/<n(t)>")
-plt.ylabel("Cumulative frequency (%)")
-plt.title("birth-death model")
-plt.margins(x = 0.01, y = 0.01)
-plt.rc('font', size=14)
+    # Define steps
+    steps = np.arange(len(mean_scaled_num_cells))[::-1] / len(mean_scaled_num_cells)
 
-# Save plot
-plt.savefig(output_dir + "/birth_death_process_seed123.png", bbox_inches='tight', dpi=300)
-plt.close()
+    # Plot cumulative frequency (simulation)
+    plt.step(mean_scaled_num_cells, steps, "red", label = "Simulation")
 
-# Save parameters?
+    # Plot exponential decay (theoretical)
+    exp_y = [np.exp(-x) for x in mean_scaled_num_cells]
+    plt.plot(mean_scaled_num_cells, exp_y, "gray", label = "Theoretical: exp(-x)")
+
+    # Add formatting
+    fontsize = 16
+    plt.xlabel("Rescaled average, n/<n>", fontsize = fontsize)
+    plt.ylabel("Cumulative frequency (%)", fontsize = fontsize)
+    plt.title("birth-death model: " + tag, fontsize = fontsize)
+    plt.legend(loc="upper right", fontsize = fontsize)
+    plt.xticks(fontsize = fontsize)
+    plt.yticks(fontsize = fontsize)
+    plt.margins(x = 0.01, y = 0.01)
+
+    # Save plot
+    plt.savefig(output_dir + "/birth_death_process_cumulative_frequency_" + tag + ".png", bbox_inches='tight', dpi=300)
+    plt.close()
+
+    return None
+
+# Generate cumulative frequency plot
+cumulative_frequency_plot(expanded_clones, "allcells")
+
+#-------------------------------------------------------------------------------
+# Produce frequency over clone size histogram
+
+# Define function to generate histogram of clone size frequency
+def frequency_histogram(expanded_clones, tag):
+    # Grab num_stem, num_diff, and total cell number from all clones
+    num_stem_list = [clone.num_stem for clone in expanded_clones]
+    num_diff_list = [clone.num_diff for clone in expanded_clones]
+    num_cells_list = list(map(add, num_stem_list, num_diff_list))
+
+    # Grab either all cells or only stem cells
+    if tag == "allcells":
+        cells_list = num_cells_list
+    elif tag == "stemcells":
+        cells_list = num_stem_list
+
+    # Generate histogram
+    plt.hist(cells_list, bins = max(cells_list),
+             color = "red", alpha = 0.5, edgecolor = "black")
+
+    # Add formatting
+    fontsize = 16
+    plt.xlabel("Clone size, n", fontsize = fontsize)
+    plt.ylabel("Frequency", fontsize = fontsize)
+    plt.title("birth-death model: " + tag, fontsize = fontsize)
+    plt.xticks(fontsize = fontsize)
+    plt.yticks(fontsize = fontsize)
+    plt.margins(x = 0.01, y = 0.01)
+
+    # Save plot
+    plt.savefig(output_dir + "/birth_death_process_frequency_histogram_" + tag + ".png", bbox_inches='tight', dpi=300)
+    plt.close()
+
+    return None
+
+# Generate frequency plot
+frequency_histogram(expanded_clones, "allcells")
+frequency_histogram(expanded_clones, "stemcells")
