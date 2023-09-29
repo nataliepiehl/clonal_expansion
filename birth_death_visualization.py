@@ -123,7 +123,7 @@ def cumulative_frequency_plot(expanded_clones, tag, output_dir, active_only = Fa
 # Produce powers of 2 clone size distribution over time plot
 
 # Define function to generate histogram of clone size frequency
-def clone_size_bin_plot(expanded_clones, output_dir):
+def clone_size_over_time_plots(expanded_clones, output_dir):
     # Grab number of cells per clone for each timestep
     num_stem_list = [clone.num_stem for clone in expanded_clones]
     num_diff_list = [clone.num_diff for clone in expanded_clones]
@@ -145,21 +145,88 @@ def clone_size_bin_plot(expanded_clones, output_dir):
     stem_df = pd.DataFrame(num_stem_list)
     diff_df = pd.DataFrame(num_diff_list)
 
-    # # Generate histogram
-    # plt.hist(cells_list, bins = max(cells_list),
-    #          color = "red", alpha = 0.5, edgecolor = "black")
+    # Add column names
+    column_names = {cells_df.columns.values[i] : "t"+str(i) for i in cells_df.columns.values}
+    cells_df = cells_df.rename(columns = column_names)
+    stem_df = stem_df.rename(columns = column_names)
+    diff_df = diff_df.rename(columns = column_names)
 
-    # # Add formatting
-    # fontsize = 16
-    # plt.xlabel("Clone size, n", fontsize = fontsize)
-    # plt.ylabel("Frequency", fontsize = fontsize)
-    # plt.title("birth-death model: " + tag, fontsize = fontsize)
-    # plt.xticks(fontsize = fontsize)
-    # plt.yticks(fontsize = fontsize)
-    # plt.margins(x = 0.01, y = 0.01)
+    # Add cell type column
+    cells_df['celltype'] = pd.Series(np.repeat("allcells", len(cells_df)))
+    stem_df['celltype'] = pd.Series(np.repeat("stemcells", len(cells_df)))
+    diff_df['celltype'] = pd.Series(np.repeat("diffcells", len(cells_df)))
 
-    # # Save plot
-    # plt.savefig(output_dir + "/birth_death_process_frequency_histogram_" + tag + ".png", bbox_inches='tight', dpi=300)
-    # plt.close()
+    # Add clone ID column
+    cells_df['cloneID'] = pd.Series(["clone"+str(i) for i in range(len(cells_df))])
+    stem_df['cloneID'] = pd.Series(["clone"+str(i) for i in range(len(cells_df))])
+    diff_df['cloneID'] = pd.Series(["clone"+str(i) for i in range(len(cells_df))])
+
+    # Merge DFs together
+    df = pd.concat([cells_df, stem_df, diff_df])
+
+    # Move celltype and cloneID to front
+    df = df[['celltype', 'cloneID'] + [col for col in df.columns if col not in ['celltype', 'cloneID']]]
+
+    # Export table
+    df.to_csv(output_dir + "/clone_trajectories_over_time.csv")
+
+    # Isolate only all cells
+    df_allonly = df[df['celltype'] == 'allcells']
+
+    # Generate clone size bins per time point
+    bins = [0, 2, 4, 8, 16, 32, 64, 128]
+    timepoints = cells_df.columns.values[~cells_df.columns.isin(['celltype', 'cloneID'])]
+    bin_columns = list()
+    for timepoint in timepoints:
+        bin_columns.append(pd.cut(df_allonly[timepoint], bins = bins))
+    bin_frequencies = pd.concat(bin_columns, axis = 1)
+
+    # Find proportions of each bin per timepoint
+    bin_frequencies = bin_frequencies[timepoints].apply(pd.Series.value_counts)
+    bin_frequencies = bin_frequencies.apply(lambda x: x / x.sum())
+
+    # Plot proportions
+    ax = bin_frequencies.T.plot()
+
+    # Log-scale x axis
+    plt.xscale("log")
+
+    # Add formatting
+    fontsize = 16
+    plt.xlabel("Time step", fontsize = fontsize)
+    plt.ylabel("Clones (%)", fontsize = fontsize)
+    plt.title("birth-death model", fontsize = fontsize)
+    plt.xticks(fontsize = fontsize)
+    plt.yticks(fontsize = fontsize)
+    plt.margins(x = 0.01, y = 0.01)
+    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+
+    # Save plot
+    plt.savefig(output_dir + "/birth_death_process_clone_bin_over_time.png", bbox_inches='tight', dpi=300)
+    plt.close()
+
+    # Produce average per celltype
+    grouped = df.groupby('celltype')
+    average_cells = grouped.mean()
+
+    # Plot means
+    ax = average_cells.T.plot()
+
+    # Log-scale x axis
+    plt.xscale("log")
+
+    # Add formatting
+    fontsize = 16
+    plt.xlabel("Time step", fontsize = fontsize)
+    plt.ylabel("Avg. cells per clone", fontsize = fontsize)
+    plt.title("birth-death model", fontsize = fontsize)
+    plt.xticks(fontsize = fontsize)
+    plt.yticks(fontsize = fontsize)
+    plt.margins(x = 0.01, y = 0.01)
+    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+
+    # Save plot
+    plt.savefig(output_dir + "/birth_death_process_cell_numbers_over_time.png", bbox_inches='tight', dpi=300)
+    plt.close()
 
     return None

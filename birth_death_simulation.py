@@ -39,7 +39,7 @@ seed = 123
 random.seed(seed)
 
 # Define output folder
-run_date = "09282023"
+run_date = "09292023"
 output_dir = os.path.join(os.getcwd(), "results", "birth_death_process", "coin_flip", run_date)
 os.makedirs(output_dir, exist_ok=True)
 
@@ -138,5 +138,5 @@ vis.frequency_histogram(expanded_clones, "stemcells", output_dir)
 vis.cumulative_frequency_plot(expanded_clones, "allcells", output_dir)
 vis.cumulative_frequency_plot(expanded_clones, "allcells", output_dir, active_only=True)
 
-# # Generate clone size group plot
-# vis.clone_size_bin_plot(expanded_clones, output_dir)
+# Generate clone size group plot
+vis.clone_size_over_time_plots(expanded_clones, output_dir)
