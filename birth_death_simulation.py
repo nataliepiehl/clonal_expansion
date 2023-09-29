@@ -138,5 +138,5 @@ vis.frequency_histogram(expanded_clones, "stemcells", output_dir)
 vis.cumulative_frequency_plot(expanded_clones, "allcells", output_dir)
 vis.cumulative_frequency_plot(expanded_clones, "allcells", output_dir, active_only=True)
 
-# Generate clone size group plot
+# Generate clone size over time plots
 vis.clone_size_over_time_plots(expanded_clones, output_dir)

@@ -21,6 +21,8 @@ import pandas as pd
 import random
 from statistics import mean
 from operator import add
+import math
+import seaborn as sns
 
 # Set random seed
 seed = 123
@@ -204,6 +206,9 @@ def clone_size_over_time_plots(expanded_clones, output_dir):
     # Save plot
     plt.savefig(output_dir + "/birth_death_process_clone_bin_over_time.png", bbox_inches='tight', dpi=300)
     plt.close()
+    
+    #---------------------------------------------------------------------------
+    # Average # cells over time
 
     # Produce average per celltype
     grouped = df.groupby('celltype')
@@ -227,6 +232,42 @@ def clone_size_over_time_plots(expanded_clones, output_dir):
 
     # Save plot
     plt.savefig(output_dir + "/birth_death_process_cell_numbers_over_time.png", bbox_inches='tight', dpi=300)
+    plt.close()
+
+    #---------------------------------------------------------------------------
+    # Scatter of clone size over timepoints
+
+    # Isolate five equally spaced timepoints
+    interval = math.floor(len(timepoints) / 5)
+    timepoints_oi = ['t' + str(timepoint) for timepoint in [interval*i for i in range(1,5)]]
+    timepoints_oi.append(timepoints[-1])
+
+    # Isolate timepoints of interest
+    timepoints_oi.append("cloneID")
+    df_timepoints_oi = df_allonly.loc[:, timepoints_oi]
+
+    # Pivot to long
+    df_timepoints_oi_long = pd.wide_to_long(df_timepoints_oi, stubnames = 't', i = 'cloneID', j = 'timepoint').reset_index()
+    df_timepoints_oi_long.columns = ['cloneID', 'timepoint', 'numcells']
+    df_timepoints_oi_long['timepoint'] = ['t' + str(timepoint) for timepoint in df_timepoints_oi_long['timepoint']]
+
+    # Remove rows with NAs (nonactive clones)
+    df_timepoints_oi_long = df_timepoints_oi_long.dropna()
+
+    # Generate swarmplot
+    ax = sns.swarmplot(data=df_timepoints_oi_long, x="timepoint", y="numcells", s = 2)
+        
+    # Add formatting
+    fontsize = 16
+    plt.xlabel("Time step", fontsize = fontsize)
+    plt.ylabel("Total cells per clone", fontsize = fontsize)
+    plt.title("birth-death model", fontsize = fontsize)
+    plt.xticks(fontsize = fontsize)
+    plt.yticks(fontsize = fontsize)
+    plt.margins(x = 0.01, y = 0.01)
+
+    # Save plot
+    plt.savefig(output_dir + "/birth_death_process_clone_size_over_time_scatter.png", bbox_inches='tight', dpi=300)
     plt.close()
 
     return None
