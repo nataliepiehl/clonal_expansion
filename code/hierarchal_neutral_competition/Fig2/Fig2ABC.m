@@ -21,13 +21,13 @@ for i=1:length(mats)
     load(replace(strcat("results/hierarchal_neutral_competition/Fig2/matrices/" + mat_filename), 'timeseries', 'variables'))
     
     % Generate clone size over time plot for each clone
-    tmax = 500;
+    tmax = 250; %changed to 250 so each simulation has data for all time points (400 open niche case)
     fig = figure('visible','off');
     fig.Position = [10 10 500 800]; 
     for k=1:num_of_clones
         subplot(num_of_clones,1,k)
         plot(x_matrix(k,:))
-        % xlim([0 tmax*(lambda*n_openniche+epsilon*num_of_clones)])
+        xlim([0 tmax*(lambda*n_openniche+epsilon*num_of_clones)])
         ylim([0,n_openniche])
         title(['clone ',num2str(k)])
         if k ~= num_of_clones
@@ -54,7 +54,7 @@ for i=1:length(mats)
     fig = figure('visible','off');
     fig.Position = [10 10 500 400]; 
     b = bar(x_matrix',1,'stacked','FaceColor','flat');
-    % xlim([0 tmax*(lambda*n_openniche+epsilon*num_of_clones)])
+    xlim([0 tmax*(lambda*n_openniche+epsilon*num_of_clones)])
     ax = gca;
     ax.XAxis.Exponent = 4;
 
@@ -87,7 +87,7 @@ for i=1:length(mats)
     xlabel(han,'time');
 
     % Save image (clone proportion across time)
-    fontsize(22, "points")
+    fontsize(16, "points")
     plot_filename = "results/hierarchal_neutral_competition/Fig2/plots/" + erase(mat_filename, ".mat") + "_proportion.png";
     exportgraphics(fig, plot_filename, 'Resolution', 300)
 end

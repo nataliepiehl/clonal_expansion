@@ -1,6 +1,7 @@
 %simulation of stem cell clonal expansion
 %written by AsahiNakamuta out of Kyoto University
 %lightly annotated NP 10/11/2023
+
 tic %starts clock
 clear variables
 clc %clears all content from command window
