@@ -13,7 +13,7 @@ m = 100000;
 %number of clones (K in manuscript)
 num_of_clones=10;
 %number of competitive stem cells in the open layer (N in manuscript)
-n_openniche = 100;
+n_openniche = 200;
 
 % Specify list of epsilons (master rate) and lambdas (competitive rate) to try
 epsilon_list = [1 0 0.01 1 2 4];
@@ -106,8 +106,8 @@ for i_para = 1:length(epsilon_list)
     %%save
     run_tag = strcat('_ep',num2str(epsilon),'_lm',num2str(lambda),'_K',num2str(num_of_clones),'_N',num2str(n_openniche));
     filename = ['results/hierarchal_neutral_competition/Fig4/matrices/clone1_timeseries', run_tag , '.mat'];
-    save(filename, 'x_clone1')
-    save(strcat('results/hierarchal_neutral_competition/Fig4/matrices/clone1_variables',run_tag,".mat"))
+    save(filename, 'x_clone1', '-v7.3')
+    save(strcat('results/hierarchal_neutral_competition/Fig4/matrices/clone1_variables',run_tag,".mat"), '-v7.3')
 
 end
 
