@@ -115,7 +115,7 @@ for i_n = 1:length(n_openniche_list)
     
         %%save
         run_tag = strcat('_ep',num2str(epsilon),'_lm',num2str(lambda),'_K',num2str(num_of_clones),'_N',num2str(n_openniche));
-        filename = [output_dir, 'clone1_timeseries', run_tag , '.mat'];
+        filename = strcat(output_dir, 'clone1_timeseries', run_tag , '.mat');
         save(filename, 'x_clone1', '-v7.3')
         save(strcat(output_dir, 'clone1_variables',run_tag,".mat"), '-v7.3')
     
