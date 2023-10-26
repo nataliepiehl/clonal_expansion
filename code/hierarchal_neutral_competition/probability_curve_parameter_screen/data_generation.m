@@ -12,7 +12,6 @@ clc
 
 %define output folder
 output_dir = "/projects/b1042/GoyalLab/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/matrices/";
-mkdir output_dir;
 %number of simulation trials for each parameter set
 m = 100000;
 %number of clones (K in manuscript)
@@ -35,7 +34,7 @@ for i_n = 1:length(n_openniche_list)
         % assign epsilon and lambda
         epsilon = epsilon_list(i_para);
         lambda = lambda_list(i_para);
-        disp("Currently processing epsilon " + epsilon + " and lambda " + lambda + "with " + n_openniche + " competitive stem cells");
+        disp("Currently processing epsilon " + epsilon + " and lambda " + lambda + " with " + n_openniche + " competitive stem cells");
     
         %number of iteration - curious why they didn't define number of iterations
         %this way in fig 2

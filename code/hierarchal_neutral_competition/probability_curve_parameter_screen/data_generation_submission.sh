@@ -18,4 +18,4 @@ module purge
 module load matlab/r2022b
 
 # Run job
-matlab -batch /home/ncp2306/clonal_expansion/code/probability_curve_parameter_screen/data_generation.m
+matlab -nodisplay -nosplash -nodesktop -r "run('/home/ncp2306/clonal_expansion/code/probability_curve_parameter_screen/data_generation.m'); exit;"
