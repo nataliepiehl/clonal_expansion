@@ -4,8 +4,8 @@
 #SBATCH --job-name parameter_screen
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
-#SBATCH --mem 120GB
-#SBATCH --time 12:00:00
+#SBATCH --mem 15GB
+#SBATCH --time 24:00:00
 #SBATCH --output /projects/b1042/GoyalLab/nat/clonal_expansion/logs/probability_curve_parameter_screen/%j.log
 #SBATCH --verbose
 
