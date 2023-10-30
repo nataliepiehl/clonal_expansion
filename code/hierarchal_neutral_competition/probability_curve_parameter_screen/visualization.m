@@ -88,7 +88,7 @@ for mat=1:length(mats)
     hold off
 
     % Add formatting
-    sgtitle(strcat("\epsilon = ", num2str(epsilon), ", \lambda = ", num2str(lambda), ": scaled"))
+    sgtitle(strcat("\epsilon = ", num2str(epsilon), ", \lambda = ", num2str(lambda), ", N = ", num2str(n_openniche), ": scaled"))
     legend("", "time = 5", "time = 10", "time = 15")
     ylabel('Probability density x avg. clone size');
     xlabel('Clone size / avg. clone size');
