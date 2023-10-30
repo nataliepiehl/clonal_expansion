@@ -22,7 +22,7 @@ num_of_clones=10;
 % start with iterations of 0.1 for the rates
 epsilon_list = [0:0.1:4 1];
 lambda_list = [repelem(1,length(0:0.1:4)) 0];
-n_openniche_list = [50 100 150];
+n_openniche_list = [120 140 200 300 500];
 
 % for each value of n_openniche...
 for i_n = 1:length(n_openniche_list)

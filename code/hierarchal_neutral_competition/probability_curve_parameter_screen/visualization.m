@@ -8,7 +8,8 @@ clear variables
 clc
 
 % Find all timeseries matrices
-input_dir = "results/hierarchal_neutral_competition/probability_curve_parameter_screen/matrices/";
+input_dir = "/projects/b1042/GoyalLab/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/matrices/";
+output_dir = "/projects/b1042/GoyalLab/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/plots/";
 mats = dir(fullfile(input_dir, "clone1_timeseries*.mat"));
 
 % Initialize output matrix
@@ -94,7 +95,7 @@ for mat=1:length(mats)
 
     % Save image (clone size across time)
     fontsize(20, "points")
-    plot_filename = "results/hierarchal_neutral_competition/probability_curve_parameter_screen/plots/" + erase(mat_filename, ".mat") + "_scaled.png";
+    plot_filename = output_dir + erase(mat_filename, ".mat") + "_scaled.png";
     exportgraphics(fig, plot_filename, 'Resolution', 300)
 end
 
@@ -147,7 +148,7 @@ xlabel('\epsilon/\lambda');
 
 % Save image (clone size across time)
 fontsize(18, "points")
-plot_filename = "results/hierarchal_neutral_competition/probability_curve_parameter_screen/plots/avg_rmse_bw_scaled_probability_curves.png";
+plot_filename = output_dir + "avg_rmse_bw_scaled_probability_curves.png";
 exportgraphics(fig, plot_filename, 'Resolution', 300)
 
 toc
