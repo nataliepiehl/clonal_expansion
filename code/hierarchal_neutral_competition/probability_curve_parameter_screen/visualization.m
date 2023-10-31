@@ -8,8 +8,8 @@ clear variables
 clc
 
 % Find all timeseries matrices
-input_dir = "/projects/b1042/GoyalLab/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/matrices/";
-output_dir = "/projects/b1042/GoyalLab/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/plots/";
+input_dir = "/projects/p31666/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/matrices/";
+output_dir = "/projects/p31666/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/plots/";
 mats = dir(fullfile(input_dir, "clone1_timeseries*.mat"));
 
 % Initialize output matrix

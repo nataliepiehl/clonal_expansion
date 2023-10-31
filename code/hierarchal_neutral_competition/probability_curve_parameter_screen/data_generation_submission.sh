@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node 1
 #SBATCH --mem 15GB
 #SBATCH --time 24:00:00
-#SBATCH --output /projects/b1042/GoyalLab/nat/clonal_expansion/logs/probability_curve_parameter_screen/%j.log
+#SBATCH --output /projects/p31666/nat/clonal_expansion/logs/probability_curve_parameter_screen/%j.log
 #SBATCH --verbose
 
 # Print date and name
@@ -18,4 +18,4 @@ module purge
 module load matlab/r2022b
 
 # Run job
-matlab -nodisplay -nosplash -nodesktop -r "run('/home/ncp2306/clonal_expansion/code/hierarchal_neutral_competition/probability_curve_parameter_screen/data_generation.m'); exit;"
+matlab -nodisplay -nosplash -nodesktop -r "run('/projects/p31666/nat/clonal_expansion/code/hierarchal_neutral_competition/probability_curve_parameter_screen/data_generation.m'); exit;"

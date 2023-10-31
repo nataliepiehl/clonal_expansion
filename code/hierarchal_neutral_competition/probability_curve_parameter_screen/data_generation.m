@@ -11,7 +11,7 @@ clc
 %initial conditions and parameters
 
 %define output folder
-output_dir = "/projects/b1042/GoyalLab/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/matrices/";
+output_dir = "/projects/p31666/nat/clonal_expansion/results/hierarchal_neutral_competition/probability_curve_parameter_screen/matrices/";
 %number of simulation trials for each parameter set
 m = 100000;
 %number of clones (K in manuscript)
@@ -22,7 +22,7 @@ num_of_clones=10;
 % start with iterations of 0.1 for the rates
 epsilon_list = [0:0.1:4 1];
 lambda_list = [repelem(1,length(0:0.1:4)) 0];
-n_openniche_list = [120 140 200 300 500];
+n_openniche_list = [300 500];
 
 % for each value of n_openniche...
 for i_n = 1:length(n_openniche_list)

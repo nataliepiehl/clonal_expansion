@@ -164,3 +164,7 @@ cython_debug/
 # Ignore results and logs folders
 results/
 logs/
+
+# Remove annoying files
+.DS_store
+._*
