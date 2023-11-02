@@ -20,8 +20,8 @@ num_of_clones=10;
 % Specify list of epsilons (master rate), lambdas (competitive rate), and
 % total open niche cells to try
 % start with iterations of 0.1 for the rates
-epsilon_list = [0:0.1:4 1];
-lambda_list = [repelem(1,length(0:0.1:4)) 0];
+epsilon_list = [3.5:0.1:4 1];
+lambda_list = [repelem(1,length(3.5:0.1:4)) 0];
 n_openniche_list = [300 500];
 
 % for each value of n_openniche...
