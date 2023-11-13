@@ -22,7 +22,7 @@ n_openniche = 100;
 %define memory parameters
 memory_gain_prob=0.5;
 % memory_loss_prob=0.5; % add later but right now just fixed at 5
-memory_strength_list=[0 0.1 0.3 1 2];
+memory_strength_list=[5 10];
 
 % Specify list of epsilons (master rate) and lambdas (competitive rate) to try
 epsilon_list = [0 0.3 1];
