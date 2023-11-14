@@ -5,7 +5,7 @@
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
 #SBATCH --mem 15GB
-#SBATCH --time 12:00:00
+#SBATCH --time 24:00:00
 #SBATCH --output /projects/p31666/nat/clonal_expansion/logs/memory/%j.log
 #SBATCH --verbose
 

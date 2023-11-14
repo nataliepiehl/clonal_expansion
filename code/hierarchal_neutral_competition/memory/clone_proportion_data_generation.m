@@ -21,8 +21,8 @@ n_openniche = 100;
 
 %define memory parameters
 memory_gain_prob=0.5;
-% memory_loss_prob=0.5; % add later but right now just fixed at 5
-memory_strength_list=[5 10];
+memory_loss_iterations=5;
+memory_strength_list=[0 1 5 10];
 
 % Specify list of epsilons (master rate) and lambdas (competitive rate) to try
 epsilon_list = [0 0.3 1];
@@ -45,7 +45,7 @@ for i_mem = 1:length(memory_strength_list)
         % col1 = clone cell belongs to
         % col2 = competitive or master
         % col3 = memory retained (binary)
-        % col4 = number of iterations retained
+        % col4 = number of iterations of memory left
         mem_matrix=zeros(n_openniche+num_of_clones, 4); 
         % assign clone IDs and stem cell label
         mem_matrix(:,1)=repelem(1:num_of_clones, num_of_clones+1);
@@ -99,10 +99,11 @@ for i_mem = 1:length(memory_strength_list)
     
         % 1. change cell identities based on pro & diff events
             % choose random cell from diff_type clone to become pro_type
-            diff_cell_randid = randi([1 x_temp(diff_type)+1]);
-    
+            diff_cell_randid = randi([1 x_matrix(diff_type,i)]);
+
             % get index of that cell in the memory array
             diff_clone_indeces = find(ismember(mem_matrix(:,1), diff_type));
+            diff_clone_indeces = setdiff(diff_clone_indeces, find(ismember(mem_matrix(:,1), diff_type) & mem_matrix(:,2) == 1));  %remove index associated with master stem cell
             diff_cell_index = diff_clone_indeces(diff_cell_randid);
     
             % convert to proliferative clone type
@@ -112,18 +113,18 @@ for i_mem = 1:length(memory_strength_list)
             mem_matrix(diff_cell_index, 3:4) = 0;
     
         % 2. account for any previously obtained memory
-            % Add one iteration to any nonzero memorys
-            mem_matrix(mem_matrix(:,4) ~= 0, 4) = mem_matrix(mem_matrix(:,4) ~= 0, 4) + 1; 
+            % Remove one iteration to any nonzero memories
+            mem_matrix(mem_matrix(:,4) ~= 0, 4) = mem_matrix(mem_matrix(:,4) ~= 0, 4) - 1; 
+
+            % If iterations are at 0, set memory to 0
+            mem_matrix(mem_matrix(:,4) == 0, 3) = 0;
     
-            % if number of iterations >= 5 -> set to 0
-            % otherwise do nothing (constant memory)
-            mem_matrix(mem_matrix(:,4) == 5, 3:4) = 0;
-    
-        % 3. Determine if memory is retained
-            rand_num_4=rand; % grab random number b/w 0 and 1
-            mem_type=(rand_num_4 <= memory_gain_prob); % 1 = memory retained, 0 = no memory retained
+        % 3. Determine if memory is retained by 
+            mem_type=poissrnd(memory_gain_prob); % 1 = memory retained, 0 = no memory retained
             % if memory retained...
             if mem_type
+                % Grab length of memory from poisson distribution
+                iterations = poissrnd(memory_loss_iterations);
         % 4. Determine if master or comp stem cell divided 
                 % Draw random number and determine if less than epsilon /
                 % (epsilon + lambda * n_k) to see if master sc divided
@@ -133,7 +134,7 @@ for i_mem = 1:length(memory_strength_list)
         % 5. Assign memory to a cell
                    % Isolate master stem cell for pro_type clone and update
                    mem_matrix(mem_matrix(:,1) == pro_type & mem_matrix(:,2) == 1, 3) = 1; % yes, memory
-                   mem_matrix(mem_matrix(:,1) == pro_type & mem_matrix(:,2) == 1, 4) = 1; % first iteration
+                   mem_matrix(mem_matrix(:,1) == pro_type & mem_matrix(:,2) == 1, 4) = iterations;
                 else
                    % choose random competitive stem cell to be the progenitor
                    pro_cell_randid = randi([1 x_temp(pro_type)]);
@@ -142,13 +143,13 @@ for i_mem = 1:length(memory_strength_list)
                    
                    % update their memory
                    mem_matrix(pro_cell_index, 3) = 1;
-                   mem_matrix(pro_cell_index, 4) = 1;
+                   mem_matrix(pro_cell_index, 4) = iterations;
                 end
             end
         end
     
         %%save
-        run_tag = strcat('_ep',num2str(epsilon),'_lm',num2str(lambda),'_K',num2str(num_of_clones),'_N',num2str(n_openniche),'_a',num2str(memory_strength));
+        run_tag = strcat('_ep',num2str(epsilon),'_lm',num2str(lambda),'_K',num2str(num_of_clones),'_N',num2str(n_openniche),'_a',num2str(memory_strength),'_length',num2str(memory_loss_iterations));
         filename = ['/projects/p31666/nat/clonal_expansion/results/hierarchal_neutral_competition/memory/matrices/timeseries', run_tag , '.mat'];
         save(filename, 'x_matrix')
         save(strcat('/projects/p31666/nat/clonal_expansion/results/hierarchal_neutral_competition/memory/matrices/variables',run_tag,".mat"))
