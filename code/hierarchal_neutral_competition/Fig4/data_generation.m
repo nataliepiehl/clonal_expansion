@@ -13,11 +13,11 @@ m = 100000;
 %number of clones (K in manuscript)
 num_of_clones=10;
 %number of competitive stem cells in the open layer (N in manuscript)
-n_openniche = 200;
+n_openniche = 100;
 
 % Specify list of epsilons (master rate) and lambdas (competitive rate) to try
-epsilon_list = [1 0 0.01 1 2 4];
-lambda_list = [0 1 1 1 1 1];
+epsilon_list = [0.3];
+lambda_list = [1];
 
 % for each value of epsilon...
 for i_para = 1:length(epsilon_list)
